@@ -18,11 +18,14 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery<MoviesResponse>({
+  const { data, isPending, isError } = useQuery<MoviesResponse, Error>({
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    keepPreviousData: true,
+    placeholderData: () => ({
+      results: [],
+      total_pages: 0,
+    }),
   });
 
   const handleSearch = (value: string) => {
@@ -38,7 +41,7 @@ export default function App() {
   return (
     <>
       <SearchBar onSubmit={handleSearch} />
-      {isLoading && <Loader />}
+      {isPending && <Loader />}
       {isError && <ErrorMessage />}
 
       {data && data.results.length > 0 && (
