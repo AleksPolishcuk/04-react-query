@@ -2,7 +2,6 @@ import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import ReactPaginate from "react-paginate";
-
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
@@ -18,15 +17,16 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isPending, isError } = useQuery<
-    MoviesResponse,
-    Error,
-    MoviesResponse
-  >({
+  const hasSearchQuery = query !== "";
+
+  const { data, isPending, isError } = useQuery<MoviesResponse, Error>({
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    staleTime: 1000 * 60,
+    placeholderData: () => ({
+      results: [],
+      total_pages: 0,
+    }),
   });
 
   const handleSearch = (value: string) => {
@@ -42,8 +42,9 @@ export default function App() {
   return (
     <>
       <SearchBar onSubmit={handleSearch} />
-      {isPending && <Loader />}
-      {isError && <ErrorMessage />}
+
+      {hasSearchQuery && isPending && <Loader />}
+      {hasSearchQuery && isError && <ErrorMessage />}
 
       {data && data.results.length > 0 && (
         <>
