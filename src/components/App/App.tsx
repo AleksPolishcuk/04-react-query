@@ -18,14 +18,15 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isPending, isError } = useQuery<MoviesResponse, Error>({
+  const { data, isPending, isError } = useQuery<
+    MoviesResponse,
+    Error,
+    MoviesResponse
+  >({
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    placeholderData: () => ({
-      results: [],
-      total_pages: 0,
-    }),
+    staleTime: 1000 * 60,
   });
 
   const handleSearch = (value: string) => {
