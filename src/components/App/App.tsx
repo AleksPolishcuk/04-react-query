@@ -23,14 +23,19 @@ export default function App() {
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    keepPreviousData: true,
+
+    placeholderData: (previousData) =>
+      previousData ?? {
+        results: [],
+        total_pages: 0,
+      },
   });
 
   useEffect(() => {
-    if (data && data.results.length === 0) {
-      toast.error("No movies found for your request.");
+    if (hasSearchQuery && data && data.results.length === 0) {
+      toast("No movies found. Try a different query.");
     }
-  }, [data]);
+  }, [data, hasSearchQuery]);
 
   const handleSearch = (value: string) => {
     if (!value.trim()) {
